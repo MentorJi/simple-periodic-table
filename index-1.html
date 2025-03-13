@@ -1,0 +1,3078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MentorJi Interactive Periodic Table</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4a50c5;
+            --secondary-color: #7276e7;
+            --tertiary-color: #1e2761;
+            --accent-color: #f2b138;
+            --accent-light: #ffd175;
+            --text-color: #2a2a2a;
+            --text-light: #ffffff;
+            --text-dark: #1a1a1a;
+            --background-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --card-shadow: 0 8px 20px rgba(36, 37, 38, 0.1);
+            --hover-shadow: 0 12px 24px rgba(36, 37, 38, 0.15);
+            --transition-speed: 0.3s;
+            
+            /* Element category colors */
+            --alkali-metal: #ff5757;
+            --alkaline-earth: #ff914d;
+            --transition-metal: #ffde59;
+            --post-transition: #75c7fb;
+            --metalloid: #7ed957;
+            --nonmetal: #a685fa;
+            --noble-gas: #ff71ce;
+            --lanthanide: #ffaa91;
+            --actinide: #91deff;
+            --unknown: #c8c8c8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(74, 80, 197, 0.05) 0%, transparent 80%),
+                radial-gradient(circle at 90% 90%, rgba(242, 177, 56, 0.05) 0%, transparent 80%);
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--tertiary-color));
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            color: var(--text-light);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 50px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        }
+
+        .logo span {
+            font-size: 24px;
+            font-weight: 700;
+            margin-left: 15px;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 25px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition-speed);
+            padding: 8px 15px;
+            border-radius: 4px;
+            position: relative;
+            display: inline-block;
+        }
+
+        nav ul li a:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background-color: var(--accent-color);
+            transition: width 0.3s ease;
+        }
+
+        nav ul li a:hover:after {
+            width: 100%;
+        }
+
+        nav ul li a:hover {
+            color: var(--accent-light);
+        }
+
+        nav ul li a.active {
+            color: var(--accent-light);
+        }
+
+        nav ul li a.active:after {
+            width: 100%;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--tertiary-color);
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            position: relative;
+            padding-bottom: 15px;
+        }
+
+        .page-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            border-radius: 2px;
+        }
+
+        .controls-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+            background-color: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .controls-section:hover {
+            box-shadow: var(--hover-shadow);
+        }
+
+        .control-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .control-group h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: var(--primary-color);
+            font-weight: 600;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .control-group h3:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 6px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+        }
+
+        select, input[type="range"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background-color: white;
+            color: var(--text-color);
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        select:focus, input[type="range"]:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(74, 80, 197, 0.2);
+        }
+
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            margin-top: 12px;
+        }
+
+        .toggle-switch label {
+            margin-left: 12px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .toggle-btn {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle-btn input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: var(--primary-color);
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        .search-bar {
+            display: flex;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .search-bar input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 15px rgba(74, 80, 197, 0.2);
+        }
+
+        .search-bar button {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 20px;
+            cursor: pointer;
+            transition: var(--transition-speed);
+        }
+
+        .search-bar button:hover {
+            color: var(--tertiary-color);
+        }
+
+        .periodic-table-container {
+            position: relative;
+            margin-bottom: 50px;
+            padding: 30px;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .periodic-table-container:hover {
+            box-shadow: var(--hover-shadow);
+        }
+
+        .periodic-table {
+            display: grid;
+            grid-template-columns: repeat(18, 1fr);
+            grid-gap: 4px;
+            margin-bottom: 20px;
+        }
+
+        .element {
+            position: relative;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background-color: var(--card-bg);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+            overflow: hidden;
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .element:hover {
+            transform: translateY(-5px) scale(1.05);
+            z-index: 10;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .element::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.3), rgba(255,255,255,0.6));
+        }
+
+        .element-number {
+            position: absolute;
+            top: 5px;
+            left: 6px;
+            font-size: 11px;
+            color: rgba(0, 0, 0, 0.6);
+            font-weight: 500;
+        }
+
+        .element-symbol {
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .element:hover .element-symbol {
+            transform: scale(1.2);
+        }
+
+        .element-name {
+            font-size: 10px;
+            text-align: center;
+            margin-top: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .element:hover .element-name {
+            max-width: 120%;
+        }
+
+        .element-mass {
+            font-size: 9px;
+            text-align: center;
+            margin-top: 5px;
+            color: rgba(0, 0, 0, 0.6);
+        }
+
+        .placeholder {
+            grid-column: span 1;
+            visibility: hidden;
+        }
+
+        .lanthanide-row, .actinide-row {
+            grid-column: span 18;
+            display: grid;
+            grid-template-columns: repeat(15, 1fr);
+            grid-gap: 4px;
+            margin-top: 20px;
+        }
+
+        .lanthanide-row::before, .actinide-row::before {
+            content: '';
+            grid-column: span 3;
+        }
+
+        .empty-cell {
+            visibility: hidden;
+        }
+
+        .category-legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            padding: 5px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .legend-item:hover {
+            background-color: rgba(0, 0, 0, 0.03);
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .color-bar-container {
+            padding: 15px 20px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .color-bar-container:hover {
+            box-shadow: var(--hover-shadow);
+        }
+
+        .color-bar-container h3 {
+            font-size: 16px;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .color-bar {
+            height: 20px;
+            width: 100%;
+            background: linear-gradient(to right, #3333ff, #33ff33, #ffff33, #ff3333);
+            margin: 10px 0;
+            border-radius: 4px;
+            position: relative;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .color-bar-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .detail-view {
+            display: none;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .element-image-container {
+            text-align: center;
+        }
+
+        .element-image {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Modal for element details */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            overflow-y: auto;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 50px 20px;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: auto;
+            max-width: 1200px;
+            width: 90%;
+            border-radius: 12px;
+            padding: 30px;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease;
+        }
+
+        .modal.show .modal-content {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #666;
+            cursor: pointer;
+            transition: var(--transition-speed);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .close-modal:hover {
+            color: var(--primary-color);
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .element-header {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .element-title-section {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .element-symbol-large {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 120px;
+            height: 120px;
+            border-radius: 12px;
+            margin-right: 30px;
+            font-size: 60px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            position: relative;
+        }
+
+        .element-number-corner {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            opacity: 0.8;
+        }
+
+        .element-details-container h2 {
+            font-size: 36px;
+            margin-bottom: 5px;
+            color: var(--tertiary-color);
+        }
+
+        .element-category-tag {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+            margin-bottom: 15px;
+            color: white;
+            font-weight: 500;
+        }
+
+        .element-description {
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .visualization-tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .visualization-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab {
+            padding: 12px 25px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            background-color: #f5f5f5;
+            margin-right: 5px;
+            transition: var(--transition-speed);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .tab.active {
+            background-color: white;
+            border-color: #ddd;
+            color: var(--primary-color);
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 25px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .element-properties {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .property-card {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 20px;
+            background-color: #fafafa;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .property-card:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .property-card h3 {
+            font-size: 18px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .property-card h3 i {
+            margin-right: 10px;
+            color: var(--accent-color);
+        }
+
+        .property-list {
+            list-style-type: none;
+        }
+
+        .property-list li {
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed rgba(0, 0, 0, 0.05);
+            padding-bottom: 8px;
+        }
+
+        .property-list li:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .property-name {
+            font-weight: 500;
+        }
+
+        .property-value {
+            color: #666;
+            font-family: 'Courier New', monospace;
+            background-color: rgba(0, 0, 0, 0.02);
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        #bohr-model-container, #structure-container {
+            display: flex;
+            justify-content: center;
+            height: 500px;
+            position: relative;
+        }
+
+        .close-detail {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: var(--transition-speed);
+            margin-top: 20px;
+            box-shadow: 0 4px 8px rgba(74, 80, 197, 0.3);
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .close-detail i {
+            margin-right: 8px;
+        }
+
+        .close-detail:hover {
+            background-color: var(--tertiary-color);
+            box-shadow: 0 6px 12px rgba(74, 80, 197, 0.4);
+        }
+
+        footer {
+            background: linear-gradient(135deg, var(--primary-color), var(--tertiary-color));
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+            margin-top: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 20%);
+            pointer-events: none;
+        }
+
+        footer a {
+            color: var(--accent-light);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            text-align: left;
+        }
+
+        .footer-section h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background-color: var(--accent-color);
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 8px;
+        }
+
+        .footer-section ul li a {
+            display: inline-block;
+            position: relative;
+        }
+
+        .footer-section ul li a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1px;
+            bottom: 0;
+            left: 0;
+            background-color: white;
+            transition: width 0.3s ease;
+        }
+
+        .footer-section ul li a:hover::after {
+            width: 100%;
+        }
+
+        .footer-bottom {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 14px;
+        }
+
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .loading.show {
+            display: flex;
+        }
+
+        .loading i {
+            font-size: 40px;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .spinner {
+            width: 70px;
+            height: 70px;
+            border: 6px solid var(--primary-color);
+            border-top: 6px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s infinite linear;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading p {
+            font-size: 18px;
+            color: var(--tertiary-color);
+            font-weight: 500;
+            margin-top: 15px;
+        }
+
+        /* Bohr Model Styling */
+        .bohr-model {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .nucleus {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle at 30% 30%, var(--primary-color), var(--tertiary-color));
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+            box-shadow: 0 0 30px rgba(74, 80, 197, 0.5);
+            z-index: 10;
+        }
+
+        .nucleus::before {
+            content: '';
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: rgba(74, 80, 197, 0.1);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 0.2; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+
+        .shell {
+            position: absolute;
+            border: 1px dashed rgba(0, 0, 0, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            top: 50%;
+            left: 50%;
+        }
+
+        .electron {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 8px var(--accent-color);
+        }
+
+        .electron::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: rgba(242, 177, 56, 0.3);
+            animation: electronPulse 1.5s infinite;
+        }
+
+        @keyframes electronPulse {
+            0% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.5); opacity: 0.3; }
+            100% { transform: scale(1); opacity: 0.7; }
+        }
+
+        .electron-trail {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            top: 0;
+            left: 0;
+            background-color: rgba(242, 177, 56, 0.1);
+            opacity: 0;
+        }
+
+        /* 3D Structure Styling */
+        .structure-3d {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .structure-controls {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .structure-controls button {
+            background-color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--tertiary-color);
+            transition: all 0.3s ease;
+        }
+
+        .structure-controls button:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* Electron Configuration Styling */
+        .orbital-filling-diagram {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .orbital-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .orbital-label {
+            width: 50px;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .orbital-boxes {
+            display: flex;
+            gap: 5px;
+        }
+
+        .orbital-box {
+            width: 30px;
+            height: 20px;
+            border: 1px solid #ddd;
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+            padding: 2px;
+        }
+
+        .electron-up, .electron-down {
+            width: 3px;
+            height: 8px;
+            background-color: var(--accent-color);
+            border-radius: 1px;
+        }
+
+        .electron-up {
+            transform: rotate(-45deg);
+        }
+
+        .electron-down {
+            transform: rotate(45deg);
+        }
+
+        /* Category coloring for elements */
+        .alkali-metal { 
+            background: linear-gradient(135deg, var(--alkali-metal), #ff8080);
+            color: var(--text-dark);
+        }
+        .alkaline-earth { 
+            background: linear-gradient(135deg, var(--alkaline-earth), #ffb280);
+            color: var(--text-dark);
+        }
+        .transition-metal { 
+            background: linear-gradient(135deg, var(--transition-metal), #ffea80);
+            color: var(--text-dark);
+        }
+        .post-transition { 
+            background: linear-gradient(135deg, var(--post-transition), #9cd8ff);
+            color: var(--text-dark);
+        }
+        .metalloid { 
+            background: linear-gradient(135deg, var(--metalloid), #a5e783);
+            color: var(--text-dark);
+        }
+        .nonmetal { 
+            background: linear-gradient(135deg, var(--nonmetal), #c9b3ff);
+            color: var(--text-dark);
+        }
+        .noble-gas { 
+            background: linear-gradient(135deg, var(--noble-gas), #ff9ee3);
+            color: var(--text-dark);
+        }
+        .lanthanide { 
+            background: linear-gradient(135deg, var(--lanthanide), #ffc7b7);
+            color: var(--text-dark);
+        }
+        .actinide { 
+            background: linear-gradient(135deg, var(--actinide), #b8ebff);
+            color: var(--text-dark);
+        }
+        .unknown { 
+            background: linear-gradient(135deg, var(--unknown), #e0e0e0);
+            color: var(--text-dark);
+        }
+
+        /* Interactive features */
+        .element-interactive-features {
+            display: flex;
+            margin-top: 30px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .feature-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-btn i {
+            margin-right: 8px;
+        }
+
+        .feature-btn:hover {
+            background-color: var(--tertiary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Additional tabs for detailed info */
+        .isotopes-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .isotopes-table th, .isotopes-table td {
+            border: 1px solid #eee;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .isotopes-table th {
+            background-color: #f5f5f5;
+            font-weight: 600;
+        }
+
+        .isotopes-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .isotopes-table tr:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* Applications Section */
+        .applications-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .application-item {
+            background-color: #f9f9f9;
+            border-radius: 6px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .application-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .application-item h4 {
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+
+        .application-item p {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Media Queries */
+        @media (max-width: 1200px) {
+            .periodic-table {
+                grid-template-columns: repeat(18, 1fr);
+                font-size: 90%;
+            }
+            
+            .element {
+                padding: 8px;
+                min-height: 70px;
+            }
+            
+            .element-symbol {
+                font-size: 18px;
+            }
+            
+            .element-name, .element-mass {
+                font-size: 9px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .element-header {
+                flex-direction: column;
+            }
+            
+            .element-symbol-large {
+                margin-bottom: 20px;
+                margin-right: 0;
+            }
+            
+            .tab {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .logo span {
+                display: none;
+            }
+            
+            nav ul {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+                color: white;
+                font-size: 24px;
+                cursor: pointer;
+            }
+            
+            .periodic-table {
+                grid-template-columns: repeat(9, 1fr);
+                overflow-x: auto;
+            }
+            
+            .controls-section {
+                flex-direction: column;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .modal-content {
+                padding: 20px;
+                width: 95%;
+            }
+        }
+
+        /* Animation Keyframes */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+
+        .slide-in {
+            animation: slideIn 0.5s ease-out forwards;
+        }
+
+        /* Delay animations for cascade effect */
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+        .delay-5 { animation-delay: 0.5s; }
+    </style>
+</head>
+<body>
+    <div class="loading">
+        <div class="spinner"></div>
+        <p>Loading the Periodic Table...</p>
+    </div>
+
+    <header>
+        <div class="logo">
+            <img src="https://www.mentorji.live/store/1/dark-170w-50h.png" alt="MentorJi Logo">
+            <span>Interactive Periodic Table</span>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#" class="active">Periodic Table</a></li>
+                <li><a href="#">Elements Explorer</a></li>
+                <li><a href="#">Trends & Properties</a></li>
+                <li><a href="#">Molecular Viewer</a></li>
+                <li><a href="#">About</a></li>
+            </ul>
+            <div class="mobile-menu-btn" style="display: none;">
+                <i class="fas fa-bars"></i>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1 class="page-title">Interactive Periodic Table</h1>
+        
+        <div class="controls-section fade-in-up">
+            <div class="control-group">
+                <h3>Display Properties</h3>
+                <select id="property-select">
+                    <option value="category">Element Category</option>
+                    <option value="atomic-weight">Atomic Weight</option>
+                    <option value="electronegativity">Electronegativity</option>
+                    <option value="ionization-energy">Ionization Energy</option>
+                    <option value="atomic-radius">Atomic Radius</option>
+                    <option value="electron-affinity">Electron Affinity</option>
+                    <option value="melting-point">Melting Point</option>
+                    <option value="boiling-point">Boiling Point</option>
+                    <option value="density">Density</option>
+                    <option value="discovery-year">Year of Discovery</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <h3>Color Scheme</h3>
+                <select id="color-scheme">
+                    <option value="category">Element Category</option>
+                    <option value="heat-viridis">Heat Map (Viridis)</option>
+                    <option value="heat-plasma">Heat Map (Plasma)</option>
+                    <option value="heat-inferno">Heat Map (Inferno)</option>
+                    <option value="heat-magma">Heat Map (Magma)</option>
+                    <option value="heat-rainbow">Heat Map (Rainbow)</option>
+                    <option value="custom">Custom Colors</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <h3>Visualization Options</h3>
+                <div class="toggle-switch">
+                    <label class="toggle-btn">
+                        <input type="checkbox" id="show-names" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <label for="show-names">Show Element Names</label>
+                </div>
+                
+                <div class="toggle-switch">
+                    <label class="toggle-btn">
+                        <input type="checkbox" id="show-atomic-mass" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <label for="show-atomic-mass">Show Atomic Mass</label>
+                </div>
+                
+                <div class="toggle-switch">
+                    <label class="toggle-btn">
+                        <input type="checkbox" id="show-electron-config">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <label for="show-electron-config">Show Electron Configuration</label>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <h3>Interactive Features</h3>
+                <div class="toggle-switch">
+                    <label class="toggle-btn">
+                        <input type="checkbox" id="animate-electrons" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <label for="animate-electrons">Animate Electrons</label>
+                </div>
+                
+                <div class="toggle-switch">
+                    <label class="toggle-btn">
+                        <input type="checkbox" id="show-tooltips" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <label for="show-tooltips">Show Tooltips</label>
+                </div>
+                
+                <div class="toggle-switch">
+                    <label class="toggle-btn">
+                        <input type="checkbox" id="highlight-trends">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <label for="highlight-trends">Highlight Periodic Trends</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="search-bar fade-in-up delay-1">
+            <input type="text" id="search-input" placeholder="Search elements by name, symbol, properties, or applications...">
+            <button id="search-btn"><i class="fas fa-search"></i></button>
+        </div>
+        
+        <div class="color-bar-container fade-in-up delay-2">
+            <h3>Property Value Scale</h3>
+            <div id="color-bar-value">
+                <div class="color-bar"></div>
+                <div class="color-bar-labels">
+                    <span id="min-value">Min</span>
+                    <span>Value</span>
+                    <span id="max-value">Max</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="category-legend fade-in-up delay-3">
+            <div class="legend-item">
+                <div class="legend-color alkali-metal"></div>
+                <span>Alkali Metal</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color alkaline-earth"></div>
+                <span>Alkaline Earth Metal</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color transition-metal"></div>
+                <span>Transition Metal</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color post-transition"></div>
+                <span>Post-Transition Metal</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color metalloid"></div>
+                <span>Metalloid</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color nonmetal"></div>
+                <span>Nonmetal</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color noble-gas"></div>
+                <span>Noble Gas</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color lanthanide"></div>
+                <span>Lanthanide</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color actinide"></div>
+                <span>Actinide</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color unknown"></div>
+                <span>Unknown</span>
+            </div>
+        </div>
+        
+        <div class="periodic-table-container fade-in-up delay-4">
+            <div class="periodic-table" id="periodic-table">
+                <!-- Periodic table will be generated by JavaScript -->
+            </div>
+            
+            <div class="lanthanide-row" id="lanthanide-row">
+                <!-- Lanthanides will be generated by JavaScript -->
+            </div>
+            
+            <div class="actinide-row" id="actinide-row">
+                <!-- Actinides will be generated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Element Details -->
+    <div class="modal" id="element-modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="element-details-container">
+                <div class="element-header">
+                    <div class="element-symbol-large" id="element-symbol-bg">
+                        <span id="modal-element-symbol">H</span>
+                        <span class="element-number-corner" id="modal-element-number">1</span>
+                    </div>
+                    <div class="element-title-section">
+                        <h2 id="modal-element-name">Element Name</h2>
+                        <div class="element-category-tag" id="modal-element-category">Category</div>
+                        <p class="element-description" id="modal-element-description">
+                            Element description goes here with information about the element's discovery, properties, and significance.
+                        </p>
+                        <div class="element-interactive-features">
+                            <button class="feature-btn" id="btn-element-compare">
+                                <i class="fas fa-balance-scale"></i> Compare Elements
+                            </button>
+                            <button class="feature-btn" id="btn-element-quiz">
+                                <i class="fas fa-question-circle"></i> Quiz Yourself
+                            </button>
+                            <button class="feature-btn" id="btn-element-save">
+                                <i class="fas fa-bookmark"></i> Save Element
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="visualization-tabs">
+                    <div class="tab active" data-tab="general-info">
+                        <i class="fas fa-info-circle"></i> General Information
+                    </div>
+                    <div class="tab" data-tab="physical-properties">
+                        <i class="fas fa-ruler-combined"></i> Physical Properties
+                    </div>
+                    <div class="tab" data-tab="atomic-properties">
+                        <i class="fas fa-atom"></i> Atomic Properties
+                    </div>
+                    <div class="tab" data-tab="bohr-model">
+                        <i class="fas fa-bullseye"></i> Bohr Model
+                    </div>
+                    <div class="tab" data-tab="electron-config">
+                        <i class="fas fa-wave-square"></i> Electron Configuration
+                    </div>
+                    <div class="tab" data-tab="structure">
+                        <i class="fas fa-cube"></i> Crystal Structure
+                    </div>
+                    <div class="tab" data-tab="isotopes">
+                        <i class="fas fa-tags"></i> Isotopes
+                    </div>
+                    <div class="tab" data-tab="applications">
+                        <i class="fas fa-industry"></i> Applications
+                    </div>
+                </div>
+                
+                <div class="tab-content active" id="general-info">
+                    <div class="element-properties">
+                        <div class="property-card">
+                            <h3><i class="fas fa-id-card"></i> Basic Information</h3>
+                            <ul class="property-list" id="basic-properties">
+                                <!-- Basic properties will be added by JavaScript -->
+                            </ul>
+                        </div>
+                        
+                        <div class="property-card">
+                            <h3><i class="fas fa-history"></i> Historical Information</h3>
+                            <ul class="property-list" id="historical-info">
+                                <!-- Historical information will be added by JavaScript -->
+                            </ul>
+                        </div>
+                        
+                        <div class="property-card">
+                            <h3><i class="fas fa-exclamation-triangle"></i> Safety Information</h3>
+                            <ul class="property-list" id="safety-info">
+                                <!-- Safety information will be added by JavaScript -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="physical-properties">
+                    <div class="element-properties">
+                        <div class="property-card">
+                            <h3><i class="fas fa-thermometer-half"></i> Thermal Properties</h3>
+                            <ul class="property-list" id="thermal-properties">
+                                <!-- Thermal properties will be added by JavaScript -->
+                            </ul>
+                        </div>
+                        
+                        <div class="property-card">
+                            <h3><i class="fas fa-tachometer-alt"></i> Physical Characteristics</h3>
+                            <ul class="property-list" id="physical-characteristics">
+                                <!-- Physical characteristics will be added by JavaScript -->
+                            </ul>
+                        </div>
+                        
+                        <div class="property-card">
+                            <h3><i class="fas fa-bolt"></i> Electrical & Magnetic Properties</h3>
+                            <ul class="property-list" id="electrical-properties">
+                                <!-- Electrical properties will be added by JavaScript -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="atomic-properties">
+                    <div class="element-properties">
+                        <div class="property-card">
+                            <h3><i class="fas fa-atom"></i> Atomic Structure</h3>
+                            <ul class="property-list" id="atomic-structure">
+                                <!-- Atomic structure will be added by JavaScript -->
+                            </ul>
+                        </div>
+                        
+                        <div class="property-card">
+                            <h3><i class="fas fa-exchange-alt"></i> Chemical Reactivity</h3>
+                            <ul class="property-list" id="chemical-reactivity">
+                                <!-- Chemical reactivity will be added by JavaScript -->
+                            </ul>
+                        </div>
+                        
+                        <div class="property-card">
+                            <h3><i class="fas fa-link"></i> Bonding & Oxidation</h3>
+                            <ul class="property-list" id="bonding-properties">
+                                <!-- Bonding properties will be added by JavaScript -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="bohr-model">
+                    <div id="bohr-model-container">
+                        <div class="bohr-model" id="bohr-model-viz">
+                            <!-- Bohr model will be generated by JavaScript -->
+                        </div>
+                    </div>
+                    <div class="property-card" style="margin-top: 20px;">
+                        <h3><i class="fas fa-info-circle"></i> About Bohr Model</h3>
+                        <p>The Bohr model shows the arrangement of electrons in an atom, with electrons moving in specific orbits (shells) around the nucleus. Each shell can hold a maximum number of electrons (2, 8, 18, 32...). While simplified, this model helps visualize how electrons are distributed.</p>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="electron-config">
+                    <div class="property-card">
+                        <h3><i class="fas fa-wave-square"></i> Electron Configuration</h3>
+                        <p id="electron-config-full" style="font-family: 'Courier New', monospace; font-size: 18px; margin: 20px 0; background-color: rgba(0,0,0,0.05); padding: 15px; border-radius: 5px;"></p>
+                        
+                        <h3><i class="fas fa-th"></i> Orbital Filling Diagram</h3>
+                        <div id="orbital-filling-diagram" class="orbital-filling-diagram">
+                            <!-- Orbital filling diagram will be generated by JavaScript -->
+                        </div>
+                        
+                        <h3><i class="fas fa-asterisk"></i> Valence Electrons</h3>
+                        <p id="valence-electrons" style="margin-top: 10px;"></p>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="structure">
+                    <div id="structure-container">
+                        <div class="structure-3d" id="structure-viz">
+                            <!-- 3D structure will be generated by JavaScript -->
+                        </div>
+                        <div class="structure-controls">
+                            <button id="zoom-in"><i class="fas fa-search-plus"></i></button>
+                            <button id="zoom-out"><i class="fas fa-search-minus"></i></button>
+                            <button id="rotate"><i class="fas fa-sync-alt"></i></button>
+                            <button id="reset-view"><i class="fas fa-home"></i></button>
+                        </div>
+                    </div>
+                    <div class="property-card" style="margin-top: 20px;">
+                        <h3><i class="fas fa-cube"></i> Crystal Structure Details</h3>
+                        <ul class="property-list" id="crystal-structure-details">
+                            <!-- Crystal structure details will be added by JavaScript -->
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="isotopes">
+                    <div class="property-card">
+                        <h3><i class="fas fa-tags"></i> Known Isotopes</h3>
+                        <p>Isotopes are atoms of the same element with different numbers of neutrons, resulting in different mass numbers.</p>
+                        <table class="isotopes-table" id="isotopes-table">
+                            <thead>
+                                <tr>
+                                    <th>Isotope</th>
+                                    <th>Mass Number</th>
+                                    <th>Abundance</th>
+                                    <th>Half-life</th>
+                                    <th>Decay Mode</th>
+                                </tr>
+                            </thead>
+                            <tbody id="isotopes-list">
+                                <!-- Isotopes will be added by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="applications">
+                    <div class="property-card">
+                        <h3><i class="fas fa-industry"></i> Commercial & Industrial Applications</h3>
+                        <div class="applications-list" id="commercial-applications">
+                            <!-- Applications will be added by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <div class="property-card" style="margin-top: 20px;">
+                        <h3><i class="fas fa-flask"></i> Scientific & Medical Applications</h3>
+                        <div class="applications-list" id="scientific-applications">
+                            <!-- Applications will be added by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Navigation</h3>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Periodic Table</a></li>
+                    <li><a href="#">Elements Explorer</a></li>
+                    <li><a href="#">Molecular Viewer</a></li>
+                    <li><a href="#">About MentorJi</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Resources</h3>
+                <ul>
+                    <li><a href="#">Chemistry Lessons</a></li>
+                    <li><a href="#">Periodic Trends</a></li>
+                    <li><a href="#">Quiz & Tests</a></li>
+                    <li><a href="#">Interactive Tools</a></li>
+                    <li><a href="#">Video Tutorials</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Contact Us</h3>
+                <ul>
+                    <li><a href="#">Help & Support</a></li>
+                    <li><a href="#">Feedback</a></li>
+                    <li><a href="#">Report an Issue</a></li>
+                    <li><a href="#">Request a Feature</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 MentorJi Interactive Periodic Table | Created for Educational Purposes</p>
+            <p><a href="#">Terms of Use</a> | <a href="#">Privacy Policy</a> | <a href="#">About</a></p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Show loading screen
+        document.querySelector('.loading').classList.add('show');
+
+        // Full Element Data for All 118 Elements (Sample for demo - full implementation would include all elements)
+        const elements = [
+            {
+                number: 1,
+                symbol: "H",
+                name: "Hydrogen",
+                atomicMass: 1.00794,
+                category: "nonmetal",
+                group: 1,
+                period: 1,
+                block: "s",
+                electronConfiguration: "1s¹",
+                electronegativity: 2.20,
+                atomicRadius: 38,
+                ionizationEnergy: 13.598,
+                electronAffinity: 0.754,
+                oxidationStates: "-1, 1",
+                standardState: "gas",
+                bondingType: "covalent",
+                meltingPoint: 14.01,
+                boilingPoint: 20.28,
+                density: 0.00008988,
+                yearDiscovered: 1766,
+                discoveredBy: "Henry Cavendish",
+                crystalStructure: "hexagonal",
+                magneticOrdering: "diamagnetic",
+                thermalConductivity: 0.1805,
+                electricalConductivity: "non-conductor",
+                specificHeat: 14.304,
+                abundance: {
+                    universe: 75,
+                    solar: 75,
+                    earth: 0.00015,
+                    humanBody: 10
+                },
+                isotopes: [
+                    { isotope: "¹H", massNumber: 1, abundance: "99.9885%", halfLife: "stable", decayMode: "stable" },
+                    { isotope: "²H (D)", massNumber: 2, abundance: "0.0115%", halfLife: "stable", decayMode: "stable" },
+                    { isotope: "³H (T)", massNumber: 3, abundance: "trace", halfLife: "12.32 years", decayMode: "β⁻" }
+                ],
+                applications: {
+                    commercial: [
+                        { name: "Fuel", description: "Hydrogen is used as a clean fuel in fuel cells, producing only water as a byproduct." },
+                        { name: "Industrial Processes", description: "Used in the production of ammonia for fertilizers and for hydrogenation of fats and oils." },
+                        { name: "Welding", description: "Atomic hydrogen welding uses hydrogen gas as a shielding gas." }
+                    ],
+                    scientific: [
+                        { name: "Nuclear Magnetic Resonance", description: "NMR spectroscopy uses the magnetic properties of hydrogen nuclei." },
+                        { name: "Cryogenics", description: "Liquid hydrogen is used as a cryogenic coolant." },
+                        { name: "Energy Storage", description: "Researched as a potential energy storage medium for renewable energy sources." }
+                    ]
+                },
+                safety: {
+                    hazards: "Extremely flammable gas, forms explosive mixtures with air.",
+                    handling: "Store in well-ventilated areas away from heat, flame, and oxidizers.",
+                    healthEffects: "Asphyxiant at high concentrations, but generally non-toxic."
+                },
+                description: "Hydrogen is the chemical element with atomic number 1. With a standard atomic weight of 1.008, hydrogen is the lightest element in the periodic table. Hydrogen is the most abundant chemical substance in the universe, constituting roughly 75% of all normal matter. Stars like the Sun are mainly composed of hydrogen in its plasma state. Most hydrogen is used near its production site, with the two largest uses being fossil fuel processing and ammonia production, mostly for the fertilizer market."
+            },
+            {
+                number: 2,
+                symbol: "He",
+                name: "Helium",
+                atomicMass: 4.002602,
+                category: "noble-gas",
+                group: 18,
+                period: 1,
+                block: "s",
+                electronConfiguration: "1s²",
+                electronegativity: null,
+                atomicRadius: 32,
+                ionizationEnergy: 24.587,
+                electronAffinity: -0.52,
+                oxidationStates: "0",
+                standardState: "gas",
+                bondingType: "atomic",
+                meltingPoint: 0.95,
+                boilingPoint: 4.22,
+                density: 0.0001785,
+                yearDiscovered: 1868,
+                discoveredBy: "Pierre Janssen, Norman Lockyer",
+                crystalStructure: "hexagonal close-packed",
+                magneticOrdering: "diamagnetic",
+                thermalConductivity: 0.1513,
+                electricalConductivity: "non-conductor",
+                specificHeat: 5.193,
+                abundance: {
+                    universe: 23,
+                    solar: 23,
+                    earth: 0.00000055,
+                    humanBody: 0
+                },
+                isotopes: [
+                    { isotope: "³He", massNumber: 3, abundance: "0.000134%", halfLife: "stable", decayMode: "stable" },
+                    { isotope: "⁴He", massNumber: 4, abundance: "99.999866%", halfLife: "stable", decayMode: "stable" }
+                ],
+                applications: {
+                    commercial: [
+                        { name: "Balloons & Airships", description: "Helium is used to fill balloons and airships due to its lightness and non-flammability." },
+                        { name: "Cryogenics", description: "Used as a coolant for superconducting magnets in MRI machines and particle accelerators." },
+                        { name: "Welding", description: "Used as a shielding gas in arc welding processes." }
+                    ],
+                    scientific: [
+                        { name: "Low Temperature Research", description: "Liquid helium is used to achieve extremely low temperatures, essential for studying quantum effects." },
+                        { name: "Gas Chromatography", description: "Used as a carrier gas in gas chromatography." },
+                        { name: "Breathing Mixtures", description: "Used in breathing gas mixtures for deep-sea diving to prevent nitrogen narcosis." }
+                    ]
+                },
+                safety: {
+                    hazards: "Simple asphyxiant, can displace oxygen in enclosed spaces.",
+                    handling: "Store in well-ventilated areas, secure cylinders to prevent falling.",
+                    healthEffects: "Generally non-toxic, but can cause asphyxiation by oxygen displacement."
+                },
+                description: "Helium is a chemical element with symbol He and atomic number 2. It is a colorless, odorless, tasteless, non-toxic, inert, monatomic gas, the first in the noble gas group in the periodic table. Its boiling point is the lowest among all the elements. Helium was first detected as an unknown yellow spectral line signature in sunlight during a solar eclipse in 1868. Helium is the second lightest and second most abundant element in the observable universe, being present at about 24% of the total elemental mass, which is more than 12 times the mass of all the heavier elements combined."
+            },
+            // In a full implementation, all 118 elements would be included with complete data
+            // For demo purposes, I'm showing just a few elements with extensive details
+            {
+                number: 8,
+                symbol: "O",
+                name: "Oxygen",
+                atomicMass: 15.9994,
+                category: "nonmetal",
+                group: 16,
+                period: 2,
+                block: "p",
+                electronConfiguration: "[He]2s²2p⁴",
+                electronegativity: 3.44,
+                atomicRadius: 48,
+                ionizationEnergy: 13.618,
+                electronAffinity: 1.461,
+                oxidationStates: "-2, -1, 1, 2",
+                standardState: "gas",
+                bondingType: "covalent",
+                meltingPoint: 54.36,
+                boilingPoint: 90.20,
+                density: 0.001429,
+                yearDiscovered: 1774,
+                discoveredBy: "Carl Wilhelm Scheele, Joseph Priestley",
+                crystalStructure: "cubic",
+                magneticOrdering: "paramagnetic",
+                thermalConductivity: 0.02658,
+                electricalConductivity: "non-conductor",
+                specificHeat: 0.918,
+                abundance: {
+                    universe: 1,
+                    solar: 0.9,
+                    earth: 46,
+                    humanBody: 65
+                },
+                isotopes: [
+                    { isotope: "¹⁶O", massNumber: 16, abundance: "99.76%", halfLife: "stable", decayMode: "stable" },
+                    { isotope: "¹⁷O", massNumber: 17, abundance: "0.04%", halfLife: "stable", decayMode: "stable" },
+                    { isotope: "¹⁸O", massNumber: 18, abundance: "0.2%", halfLife: "stable", decayMode: "stable" }
+                ],
+                applications: {
+                    commercial: [
+                        { name: "Medical Oxygen", description: "Used for respiratory therapy and as supplemental oxygen." },
+                        { name: "Steel Production", description: "Used in the basic oxygen steelmaking process." },
+                        { name: "Water Treatment", description: "Ozone (O₃) is used for water purification and treatment." }
+                    ],
+                    scientific: [
+                        { name: "Life Support", description: "Essential for respiration in living organisms." },
+                        { name: "Combustion Research", description: "Critical component in studying combustion reactions." },
+                        { name: "Environmental Analysis", description: "Oxygen isotope ratios are used in climate research and geology." }
+                    ]
+                },
+                safety: {
+                    hazards: "Strongly supports combustion, can cause rapid burning of materials.",
+                    handling: "Keep away from oils, greases, and flammable materials.",
+                    healthEffects: "Pure oxygen at high pressures can cause oxygen toxicity with symptoms including convulsions."
+                },
+                description: "Oxygen is a chemical element with symbol O and atomic number 8. It is a member of the chalcogen group on the periodic table, a highly reactive nonmetal, and an oxidizing agent that readily forms oxides with most elements as well as with other compounds. Oxygen is the third-most abundant element in the universe by mass after hydrogen and helium and the most abundant element by mass in the Earth's crust, making up almost half of the crust's mass. Free oxygen also occurs in solution in the world's water bodies. By mass, oxygen is the third-most abundant element in the universe, after hydrogen and helium."
+            }
+        ];
+
+        // Function to generate a more complete periodic table
+        // In a real implementation, all 118 elements would be included
+        function generateFullPeriodicTable() {
+            // This function would generate all 118 elements with their positions
+            // For demonstration, we'll show how to structure elements in the table
+            
+            const periodicTable = document.getElementById('periodic-table');
+            const lanthanideRow = document.getElementById('lanthanide-row');
+            const actinideRow = document.getElementById('actinide-row');
+            
+            // Clear any existing content
+            periodicTable.innerHTML = '';
+            lanthanideRow.innerHTML = '';
+            actinideRow.innerHTML = '';
+            
+            // Create a grid with placeholders for all positions
+            // The real periodic table has 18 columns and 7 rows in the main table
+            // Plus 2 rows for lanthanides and actinides
+            
+            // For demonstration, let's create a simplified structure with the first 3 elements
+            
+            // Element 1: Hydrogen (Group 1, Period 1)
+            createElementTile(elements[0], periodicTable);
+            
+            // Add placeholders for positions between H and He
+            for (let i = 0; i < 16; i++) {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'placeholder';
+                periodicTable.appendChild(placeholder);
+            }
+            
+            // Element 2: Helium (Group 18, Period 1)
+            createElementTile(elements[1], periodicTable);
+            
+            // Add some more elements and placeholders to demonstrate the structure
+            // In a real implementation, each element would be positioned according to its group and period
+            
+            // Placeholder for demonstration - this would be a set of elements in the real implementation
+            for (let i = 0; i < 90; i++) {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'placeholder';
+                periodicTable.appendChild(placeholder);
+            }
+            
+            // Element 8: Oxygen (just for demonstration)
+            createElementTile(elements[2], periodicTable);
+        }
+
+        // Create an element tile with enhanced styling and effects
+        function createElementTile(element, container) {
+            const tile = document.createElement('div');
+            tile.className = `element ${element.category}`;
+            tile.dataset.number = element.number;
+            tile.dataset.name = element.name;
+            tile.dataset.symbol = element.symbol;
+            tile.dataset.category = element.category;
+            tile.dataset.atomicMass = element.atomicMass;
+            
+            tile.innerHTML = `
+                <div class="element-number">${element.number}</div>
+                <div class="element-symbol">${element.symbol}</div>
+                <div class="element-name">${element.name}</div>
+                <div class="element-mass">${element.atomicMass}</div>
+            `;
+            
+            // Add event listener to open modal with element details
+            tile.addEventListener('click', () => showElementDetails(element));
+            
+            container.appendChild(tile);
+        }
+
+        // Show detailed element information in modal
+        function showElementDetails(element) {
+            const modal = document.getElementById('element-modal');
+            
+            // Set element details in the modal
+            document.getElementById('modal-element-name').textContent = element.name;
+            document.getElementById('modal-element-symbol').textContent = element.symbol;
+            document.getElementById('modal-element-number').textContent = element.number;
+            document.getElementById('modal-element-category').textContent = element.category.replace('-', ' ');
+            document.getElementById('modal-element-category').className = `element-category-tag ${element.category}`;
+            document.getElementById('element-symbol-bg').className = `element-symbol-large ${element.category}`;
+            document.getElementById('modal-element-description').textContent = element.description;
+            
+            // Set basic properties
+            const basicProps = document.getElementById('basic-properties');
+            basicProps.innerHTML = `
+                <li><span class="property-name">Atomic Number:</span> <span class="property-value">${element.number}</span></li>
+                <li><span class="property-name">Symbol:</span> <span class="property-value">${element.symbol}</span></li>
+                <li><span class="property-name">Name:</span> <span class="property-value">${element.name}</span></li>
+                <li><span class="property-name">Atomic Mass:</span> <span class="property-value">${element.atomicMass} u</span></li>
+                <li><span class="property-name">Category:</span> <span class="property-value">${element.category.replace('-', ' ')}</span></li>
+                <li><span class="property-name">Group:</span> <span class="property-value">${element.group || 'N/A'}</span></li>
+                <li><span class="property-name">Period:</span> <span class="property-value">${element.period}</span></li>
+                <li><span class="property-name">Block:</span> <span class="property-value">${element.block}-block</span></li>
+                <li><span class="property-name">State at STP:</span> <span class="property-value">${element.standardState}</span></li>
+            `;
+            
+            // Set historical information
+            const historicalInfo = document.getElementById('historical-info');
+            historicalInfo.innerHTML = `
+                <li><span class="property-name">Year Discovered:</span> <span class="property-value">${element.yearDiscovered}</span></li>
+                <li><span class="property-name">Discovered By:</span> <span class="property-value">${element.discoveredBy}</span></li>
+                <li><span class="property-name">Etymology:</span> <span class="property-value">Named after ${getEtymology(element.name)}</span></li>
+                <li><span class="property-name">Natural Occurrence:</span> <span class="property-value">${getNaturalOccurrence(element)}</span></li>
+            `;
+            
+            // Set safety information
+            const safetyInfo = document.getElementById('safety-info');
+            safetyInfo.innerHTML = `
+                <li><span class="property-name">Hazards:</span> <span class="property-value">${element.safety?.hazards || 'Data not available'}</span></li>
+                <li><span class="property-name">Safe Handling:</span> <span class="property-value">${element.safety?.handling || 'Data not available'}</span></li>
+                <li><span class="property-name">Health Effects:</span> <span class="property-value">${element.safety?.healthEffects || 'Data not available'}</span></li>
+            `;
+            
+            // Set thermal properties
+            const thermalProps = document.getElementById('thermal-properties');
+            thermalProps.innerHTML = `
+                <li><span class="property-name">Melting Point:</span> <span class="property-value">${element.meltingPoint} K (${(element.meltingPoint - 273.15).toFixed(2)} °C)</span></li>
+                <li><span class="property-name">Boiling Point:</span> <span class="property-value">${element.boilingPoint} K (${(element.boilingPoint - 273.15).toFixed(2)} °C)</span></li>
+                <li><span class="property-name">Thermal Conductivity:</span> <span class="property-value">${element.thermalConductivity || 'N/A'} W/(m·K)</span></li>
+                <li><span class="property-name">Specific Heat:</span> <span class="property-value">${element.specificHeat || 'N/A'} J/(g·K)</span></li>
+            `;
+            
+            // Set physical characteristics
+            const physicalChars = document.getElementById('physical-characteristics');
+            physicalChars.innerHTML = `
+                <li><span class="property-name">Density:</span> <span class="property-value">${element.density} g/cm³</span></li>
+                <li><span class="property-name">Crystal Structure:</span> <span class="property-value">${element.crystalStructure || 'N/A'}</span></li>
+                <li><span class="property-name">Color:</span> <span class="property-value">${getElementColor(element.name)}</span></li>
+                <li><span class="property-name">Appearance:</span> <span class="property-value">${getElementAppearance(element.name)}</span></li>
+            `;
+            
+            // Set electrical properties
+            const electricalProps = document.getElementById('electrical-properties');
+            electricalProps.innerHTML = `
+                <li><span class="property-name">Electrical Conductivity:</span> <span class="property-value">${element.electricalConductivity || 'N/A'}</span></li>
+                <li><span class="property-name">Magnetic Ordering:</span> <span class="property-value">${element.magneticOrdering || 'N/A'}</span></li>
+                <li><span class="property-name">Superconducting Point:</span> <span class="property-value">${getSuperconductingPoint(element.name)}</span></li>
+            `;
+            
+            // Set atomic structure
+            const atomicStructure = document.getElementById('atomic-structure');
+            atomicStructure.innerHTML = `
+                <li><span class="property-name">Electron Configuration:</span> <span class="property-value">${element.electronConfiguration}</span></li>
+                <li><span class="property-name">Electrons per Shell:</span> <span class="property-value">${getElectronsPerShell(element)}</span></li>
+                <li><span class="property-name">Atomic Radius:</span> <span class="property-value">${element.atomicRadius} pm</span></li>
+                <li><span class="property-name">Covalent Radius:</span> <span class="property-value">${getCovalentRadius(element.name)} pm</span></li>
+                <li><span class="property-name">Van der Waals Radius:</span> <span class="property-value">${getVanDerWaalsRadius(element.name)} pm</span></li>
+            `;
+            
+            // Set chemical reactivity
+            const chemicalReactivity = document.getElementById('chemical-reactivity');
+            chemicalReactivity.innerHTML = `
+                <li><span class="property-name">Electronegativity:</span> <span class="property-value">${element.electronegativity || 'N/A'} (Pauling scale)</span></li>
+                <li><span class="property-name">Ionization Energy:</span> <span class="property-value">${element.ionizationEnergy} eV</span></li>
+                <li><span class="property-name">Electron Affinity:</span> <span class="property-value">${element.electronAffinity} eV</span></li>
+            `;
+            
+            // Set bonding properties
+            const bondingProps = document.getElementById('bonding-properties');
+            bondingProps.innerHTML = `
+                <li><span class="property-name">Oxidation States:</span> <span class="property-value">${element.oxidationStates}</span></li>
+                <li><span class="property-name">Bonding Type:</span> <span class="property-value">${element.bondingType}</span></li>
+                <li><span class="property-name">Common Compounds:</span> <span class="property-value">${getCommonCompounds(element.symbol)}</span></li>
+            `;
+            
+            // Set electron configuration
+            document.getElementById('electron-config-full').textContent = element.electronConfiguration;
+            
+            // Set valence electrons description
+            const valenceElectrons = document.getElementById('valence-electrons');
+            valenceElectrons.innerHTML = getValenceElectronsDescription(element);
+            
+            // Create orbital filling diagram
+            createOrbitalFillingDiagram(element);
+            
+            // Create Bohr model
+            createBohrModel(element);
+            
+            // Set 3D structure
+            initStructureViz(element);
+            
+            // Set isotopes table
+            const isotopesList = document.getElementById('isotopes-list');
+            isotopesList.innerHTML = '';
+            
+            if (element.isotopes && element.isotopes.length > 0) {
+                element.isotopes.forEach(isotope => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${isotope.isotope}</td>
+                        <td>${isotope.massNumber}</td>
+                        <td>${isotope.abundance}</td>
+                        <td>${isotope.halfLife}</td>
+                        <td>${isotope.decayMode}</td>
+                    `;
+                    isotopesList.appendChild(row);
+                });
+            } else {
+                isotopesList.innerHTML = `
+                    <tr>
+                        <td colspan="5">Isotope data not available for this element.</td>
+                    </tr>
+                `;
+            }
+            
+            // Set applications
+            const commercialApplications = document.getElementById('commercial-applications');
+            const scientificApplications = document.getElementById('scientific-applications');
+            
+            commercialApplications.innerHTML = '';
+            scientificApplications.innerHTML = '';
+            
+            if (element.applications) {
+                if (element.applications.commercial && element.applications.commercial.length > 0) {
+                    element.applications.commercial.forEach(app => {
+                        const appItem = document.createElement('div');
+                        appItem.className = 'application-item';
+                        appItem.innerHTML = `
+                            <h4>${app.name}</h4>
+                            <p>${app.description}</p>
+                        `;
+                        commercialApplications.appendChild(appItem);
+                    });
+                } else {
+                    commercialApplications.innerHTML = '<p>No commercial applications data available.</p>';
+                }
+                
+                if (element.applications.scientific && element.applications.scientific.length > 0) {
+                    element.applications.scientific.forEach(app => {
+                        const appItem = document.createElement('div');
+                        appItem.className = 'application-item';
+                        appItem.innerHTML = `
+                            <h4>${app.name}</h4>
+                            <p>${app.description}</p>
+                        `;
+                        scientificApplications.appendChild(appItem);
+                    });
+                } else {
+                    scientificApplications.innerHTML = '<p>No scientific applications data available.</p>';
+                }
+            } else {
+                commercialApplications.innerHTML = '<p>Applications data not available for this element.</p>';
+                scientificApplications.innerHTML = '<p>Applications data not available for this element.</p>';
+            }
+            
+            // Set crystal structure details
+            const crystalStructureDetails = document.getElementById('crystal-structure-details');
+            crystalStructureDetails.innerHTML = `
+                <li><span class="property-name">Crystal Structure:</span> <span class="property-value">${element.crystalStructure || 'Data not available'}</span></li>
+                <li><span class="property-name">Lattice Constant:</span> <span class="property-value">${getLatticeConstant(element.name)}</span></li>
+                <li><span class="property-name">Space Group:</span> <span class="property-value">${getSpaceGroup(element.name)}</span></li>
+                <li><span class="property-name">Coordination Number:</span> <span class="property-value">${getCoordinationNumber(element.name)}</span></li>
+            `;
+            
+            // Reset to first tab
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelector('.tab[data-tab="general-info"]').classList.add('active');
+            document.getElementById('general-info').classList.add('active');
+            
+            // Show the modal with animation
+            modal.classList.add('show');
+        }
+
+        // Helper functions for element details (would be filled with accurate data in a full implementation)
+        function getEtymology(elementName) {
+            const etymologies = {
+                "Hydrogen": "the Greek words 'hydro' and 'genes' meaning 'water-forming'",
+                "Helium": "the Greek word 'helios' meaning 'sun'",
+                "Oxygen": "the Greek words 'oxys' and 'genes' meaning 'acid-forming'"
+                // Would include all elements in full implementation
+            };
+            
+            return etymologies[elementName] || "information not available";
+        }
+
+        function getNaturalOccurrence(element) {
+            if (element.abundance) {
+                return `${element.abundance.earth}% of Earth's crust by mass`;
+            }
+            return "Data not available";
+        }
+
+        function getElementColor(elementName) {
+            const colors = {
+                "Hydrogen": "colorless as a gas",
+                "Helium": "colorless",
+                "Oxygen": "colorless as a gas, light blue as a liquid"
+                // Would include all elements in full implementation
+            };
+            
+            return colors[elementName] || "Data not available";
+        }
+
+        function getElementAppearance(elementName) {
+            const appearances = {
+                "Hydrogen": "colorless, odorless, tasteless gas",
+                "Helium": "colorless, odorless, tasteless gas",
+                "Oxygen": "colorless, odorless gas"
+                // Would include all elements in full implementation
+            };
+            
+            return appearances[elementName] || "Data not available";
+        }
+
+        function getSuperconductingPoint(elementName) {
+            const superconductingPoints = {
+                "Hydrogen": "N/A",
+                "Helium": "N/A",
+                "Oxygen": "N/A"
+                // Would include all elements in full implementation
+            };
+            
+            return superconductingPoints[elementName] || "N/A";
+        }
+
+        function getCovalentRadius(elementName) {
+            const covalentRadii = {
+                "Hydrogen": 31,
+                "Helium": 28,
+                "Oxygen": 66
+                // Would include all elements in full implementation
+            };
+            
+            return covalentRadii[elementName] || "N/A";
+        }
+
+        function getVanDerWaalsRadius(elementName) {
+            const vanDerWaalsRadii = {
+                "Hydrogen": 120,
+                "Helium": 140,
+                "Oxygen": 152
+                // Would include all elements in full implementation
+            };
+            
+            return vanDerWaalsRadii[elementName] || "N/A";
+        }
+
+        function getElectronsPerShell(element) {
+            const electronsPerShell = {
+                1: "1", // Hydrogen
+                2: "2", // Helium
+                8: "2, 6" // Oxygen
+                // Would include all elements in full implementation
+            };
+            
+            return electronsPerShell[element.number] || "Data not available";
+        }
+
+        function getCommonCompounds(elementSymbol) {
+            const commonCompounds = {
+                "H": "H₂O (water), NH₃ (ammonia), CH₄ (methane)",
+                "He": "None (noble gas)",
+                "O": "H₂O (water), O₂ (oxygen), O₃ (ozone), CO₂ (carbon dioxide)"
+                // Would include all elements in full implementation
+            };
+            
+            return commonCompounds[elementSymbol] || "Data not available";
+        }
+
+        function getValenceElectronsDescription(element) {
+            if (element.category === 'noble-gas') {
+                return "As a noble gas, it has a full valence shell with 8 electrons (2 for Helium).";
+            } else if (element.category === 'alkali-metal') {
+                return "1 electron in the outermost shell.";
+            } else if (element.category === 'alkaline-earth') {
+                return "2 electrons in the outermost shell.";
+            } else if (element.group >= 13 && element.group <= 18) {
+                return `${element.group - 10} electrons in the outermost shell.`;
+            } else {
+                return "Transition metals have a complex valence electron structure.";
+            }
+        }
+
+        function getLatticeConstant(elementName) {
+            const latticeConstants = {
+                "Hydrogen": "3.75 Å (solid H₂)",
+                "Helium": "3.57 Å (at 1.1 K)",
+                "Oxygen": "5.40 Å (solid O₂ at 23.8 K)"
+                // Would include all elements in full implementation
+            };
+            
+            return latticeConstants[elementName] || "Data not available";
+        }
+
+        function getSpaceGroup(elementName) {
+            const spaceGroups = {
+                "Hydrogen": "P6₃/mmc (solid H₂)",
+                "Helium": "P6₃/mmc (solid He)",
+                "Oxygen": "Pmcn (α-O₂)"
+                // Would include all elements in full implementation
+            };
+            
+            return spaceGroups[elementName] || "Data not available";
+        }
+
+        function getCoordinationNumber(elementName) {
+            const coordinationNumbers = {
+                "Hydrogen": "12 (solid H₂)",
+                "Helium": "12 (solid He)",
+                "Oxygen": "12 (solid O₂)"
+                // Would include all elements in full implementation
+            };
+            
+            return coordinationNumbers[elementName] || "Data not available";
+        }
+
+        // Create orbital filling diagram for an element
+        function createOrbitalFillingDiagram(element) {
+            const orbitalDiagram = document.getElementById('orbital-filling-diagram');
+            orbitalDiagram.innerHTML = ''; // Clear previous content
+            
+            // This is a simplified version - in a full implementation you would parse the electron configuration
+            // and create a visual representation of the orbital filling
+            
+            const orbitalOrder = ['1s', '2s', '2p', '3s', '3p', '4s', '3d', '4p', '5s', '4d', '5p', '6s', '4f', '5d', '6p', '7s', '5f', '6d', '7p'];
+            const orbitalCapacity = {
+                's': 2,
+                'p': 6,
+                'd': 10,
+                'f': 14
+            };
+            
+            // Simple parser for electron configuration (would be more sophisticated in a full implementation)
+            const electronConfig = element.electronConfiguration;
+            const electronCount = element.number;
+            
+            let electronsRemaining = electronCount;
+            
+            // Create orbital rows
+            orbitalOrder.forEach(orbital => {
+                if (electronsRemaining <= 0) return;
+                
+                const orbitalType = orbital.charAt(1);
+                const maxElectrons = orbitalCapacity[orbitalType];
+                const electronsInOrbital = Math.min(electronsRemaining, maxElectrons);
+                
+                // Create orbital row
+                const orbitalRow = document.createElement('div');
+                orbitalRow.className = 'orbital-row';
+                
+                // Add orbital label
+                const orbitalLabel = document.createElement('div');
+                orbitalLabel.className = 'orbital-label';
+                orbitalLabel.textContent = orbital;
+                orbitalRow.appendChild(orbitalLabel);
+                
+                // Add orbital boxes
+                const orbitalBoxes = document.createElement('div');
+                orbitalBoxes.className = 'orbital-boxes';
+                
+                const boxCount = maxElectrons / 2; // Each box can hold 2 electrons (up and down spin)
+                
+                for (let i = 0; i < boxCount; i++) {
+                    const box = document.createElement('div');
+                    box.className = 'orbital-box';
+                    
+                    // Calculate electrons in this box (0, 1, or 2)
+                    const electronsInBox = Math.min(electronsRemaining, 2);
+                    
+                    if (electronsInBox >= 1) {
+                        const electronUp = document.createElement('div');
+                        electronUp.className = 'electron-up';
+                        box.appendChild(electronUp);
+                    }
+                    
+                    if (electronsInBox === 2) {
+                        const electronDown = document.createElement('div');
+                        electronDown.className = 'electron-down';
+                        box.appendChild(electronDown);
+                    }
+                    
+                    orbitalBoxes.appendChild(box);
+                    electronsRemaining -= electronsInBox;
+                    
+                    if (electronsRemaining <= 0) break;
+                }
+                
+                orbitalRow.appendChild(orbitalBoxes);
+                orbitalDiagram.appendChild(orbitalRow);
+            });
+        }
+
+        // Create an animated Bohr model for an element
+        function createBohrModel(element) {
+            const bohrContainer = document.getElementById('bohr-model-viz');
+            bohrContainer.innerHTML = ''; // Clear previous content
+            
+            // Add nucleus
+            const nucleus = document.createElement('div');
+            nucleus.className = 'nucleus';
+            nucleus.textContent = element.symbol;
+            bohrContainer.appendChild(nucleus);
+            
+            // Determine number of electrons in each shell
+            // This is a simplified model and not scientifically accurate for all elements
+            const shells = [];
+            
+            if (element.number <= 2) {
+                shells.push(element.number); // K shell (n=1) can hold up to 2 electrons
+            } else if (element.number <= 10) {
+                shells.push(2, element.number - 2); // K shell (2), L shell (n=2) can hold up to 8
+            } else if (element.number <= 18) {
+                shells.push(2, 8, element.number - 10); // K (2), L (8), M shell (n=3)
+            } else if (element.number <= 36) {
+                shells.push(2, 8, 18, element.number - 28); // K (2), L (8), M (18), N shell (n=4)
+            } else if (element.number <= 54) {
+                shells.push(2, 8, 18, 18, element.number - 46); // K (2), L (8), M (18), N (18), O shell (n=5)
+            } else if (element.number <= 86) {
+                shells.push(2, 8, 18, 32, 18, element.number - 78); // K (2), L (8), M (18), N (32), O (18), P shell (n=6)
+            } else {
+                shells.push(2, 8, 18, 32, 32, 18, element.number - 110); // K (2), L (8), M (18), N (32), O (32), P (18), Q shell (n=7)
+            }
+            
+            // Create shells and electrons
+            shells.forEach((electronCount, i) => {
+                const shellRadius = 60 + (i + 1) * 45; // Increase radius for each shell
+                
+                // Create shell circle
+                const shellElem = document.createElement('div');
+                shellElem.className = 'shell';
+                shellElem.style.width = `${shellRadius * 2}px`;
+                shellElem.style.height = `${shellRadius * 2}px`;
+                bohrContainer.appendChild(shellElem);
+                
+                // Create electrons in this shell
+                for (let j = 0; j < electronCount; j++) {
+                    const electron = document.createElement('div');
+                    electron.className = 'electron';
+                    
+                    // Position electrons evenly around the shell
+                    const angle = (360 / electronCount) * j;
+                    const x = shellRadius * Math.cos(angle * (Math.PI / 180));
+                    const y = shellRadius * Math.sin(angle * (Math.PI / 180));
+                    
+                    electron.style.left = `calc(50% + ${x}px)`;
+                    electron.style.top = `calc(50% + ${y}px)`;
+                    
+                    // Add animation for orbiting electrons
+                    electron.style.animation = `orbit${i+1} ${3 + i * 0.5}s linear infinite`;
+                    
+                    // Add electron trail effect
+                    const trail = document.createElement('div');
+                    trail.className = 'electron-trail';
+                    electron.appendChild(trail);
+                    
+                    bohrContainer.appendChild(electron);
+                    
+                    // Add CSS animation for this shell's orbit
+                    if (!document.getElementById(`orbit-style-${i+1}`)) {
+                        const style = document.createElement('style');
+                        style.id = `orbit-style-${i+1}`;
+                        style.textContent = `
+                            @keyframes orbit${i+1} {
+                                from { transform: rotate(${Math.random() * 360}deg) translateX(${shellRadius}px) rotate(0deg); }
+                                to { transform: rotate(${360 + Math.random() * 360}deg) translateX(${shellRadius}px) rotate(-360deg); }
+                            }
+                        `;
+                        document.head.appendChild(style);
+                    }
+                }
+            });
+        }
+
+        // Initialize 3D structure visualization
+        function initStructureViz(element) {
+            const container = document.getElementById('structure-viz');
+            container.innerHTML = ''; // Clear previous content
+            
+            // Create Three.js scene
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xf0f0f0);
+            
+            const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
+            
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(renderer.domElement);
+            
+            // Add lighting
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.8);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(1, 1, 1);
+            scene.add(directionalLight);
+            
+            const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.5);
+            directionalLight2.position.set(-1, -1, -1);
+            scene.add(directionalLight2);
+            
+            // Position camera
+            camera.position.z = 5;
+            
+            // Create a crystal structure based on element type
+            createCrystalStructure(element, scene);
+            
+            // Add controls
+            document.getElementById('zoom-in').addEventListener('click', () => {
+                camera.position.z -= 0.5;
+            });
+            
+            document.getElementById('zoom-out').addEventListener('click', () => {
+                camera.position.z += 0.5;
+            });
+            
+            let autoRotate = false;
+            document.getElementById('rotate').addEventListener('click', () => {
+                autoRotate = !autoRotate;
+            });
+            
+            document.getElementById('reset-view').addEventListener('click', () => {
+                camera.position.set(0, 0, 5);
+                scene.rotation.set(0, 0, 0);
+            });
+            
+            // Animation loop
+            function animate() {
+                requestAnimationFrame(animate);
+                
+                if (autoRotate) {
+                    scene.rotation.y += 0.01;
+                    scene.rotation.x += 0.005;
+                }
+                
+                renderer.render(scene, camera);
+            }
+            
+            animate();
+            
+            // Handle window resizing
+            window.addEventListener('resize', () => {
+                camera.aspect = container.clientWidth / container.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(container.clientWidth, container.clientHeight);
+            });
+        }
+
+        // Create crystal structure based on element type
+        function createCrystalStructure(element, scene) {
+            let structure;
+            
+            // Determine structure based on element properties
+            switch(element.crystalStructure) {
+                case 'cubic':
+                    structure = createCubicStructure(element);
+                    break;
+                case 'hexagonal':
+                    structure = createHexagonalStructure(element);
+                    break;
+                case 'hexagonal close-packed':
+                    structure = createHCPStructure(element);
+                    break;
+                default:
+                    // Default to simple cubic structure
+                    structure = createCubicStructure(element);
+            }
+            
+            scene.add(structure);
+        }
+
+        // Create cubic crystal structure
+        function createCubicStructure(element) {
+            const group = new THREE.Group();
+            const atomColor = getElementThreeColor(element);
+            const atomRadius = 0.3;
+            const bondRadius = 0.05;
+            const latticeConstant = 1;
+            
+            // Create atoms at cube vertices
+            for (let x = -1; x <= 1; x += 2) {
+                for (let y = -1; y <= 1; y += 2) {
+                    for (let z = -1; z <= 1; z += 2) {
+                        const atomGeometry = new THREE.SphereGeometry(atomRadius, 32, 32);
+                        const atomMaterial = new THREE.MeshPhongMaterial({ 
+                            color: atomColor,
+                            specular: 0x111111,
+                            shininess: 30
+                        });
+                        const atom = new THREE.Mesh(atomGeometry, atomMaterial);
+                        
+                        atom.position.set(x * latticeConstant / 2, y * latticeConstant / 2, z * latticeConstant / 2);
+                        group.add(atom);
+                    }
+                }
+            }
+            
+            // Create bonds between atoms
+            const bondMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x888888,
+                specular: 0x222222,
+                shininess: 20
+            });
+            
+            // Function to create bonds between atoms
+            function createBond(x1, y1, z1, x2, y2, z2) {
+                const start = new THREE.Vector3(x1 * latticeConstant / 2, y1 * latticeConstant / 2, z1 * latticeConstant / 2);
+                const end = new THREE.Vector3(x2 * latticeConstant / 2, y2 * latticeConstant / 2, z2 * latticeConstant / 2);
+                
+                const direction = new THREE.Vector3().subVectors(end, start);
+                const length = direction.length();
+                
+                const bondGeometry = new THREE.CylinderGeometry(bondRadius, bondRadius, length, 8);
+                const bond = new THREE.Mesh(bondGeometry, bondMaterial);
+                
+                // Position and orient the bond
+                const midpoint = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
+                bond.position.copy(midpoint);
+                
+                // Orient the cylinder to point from start to end
+                bond.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.clone().normalize());
+                
+                group.add(bond);
+            }
+            
+            // Create bonds along cube edges
+            for (let x = -1; x <= 1; x += 2) {
+                for (let y = -1; y <= 1; y += 2) {
+                    createBond(x, y, -1, x, y, 1);
+                }
+            }
+            
+            for (let x = -1; x <= 1; x += 2) {
+                for (let z = -1; z <= 1; z += 2) {
+                    createBond(x, -1, z, x, 1, z);
+                }
+            }
+            
+            for (let y = -1; y <= 1; y += 2) {
+                for (let z = -1; z <= 1; z += 2) {
+                    createBond(-1, y, z, 1, y, z);
+                }
+            }
+            
+            return group;
+        }
+
+        // Create hexagonal crystal structure
+        function createHexagonalStructure(element) {
+            const group = new THREE.Group();
+            const atomColor = getElementThreeColor(element);
+            const atomRadius = 0.3;
+            const bondRadius = 0.05;
+            
+            // Hexagonal structure parameters
+            const a = 1; // Basal plane spacing
+            const c = 1.6; // Height of hexagonal prism
+            
+            // Create atoms in hexagonal arrangement
+            const positions = [
+                // Bottom hexagon
+                [a, 0, 0], [a/2, a*Math.sin(Math.PI/3), 0], [-a/2, a*Math.sin(Math.PI/3), 0],
+                [-a, 0, 0], [-a/2, -a*Math.sin(Math.PI/3), 0], [a/2, -a*Math.sin(Math.PI/3), 0],
+                // Top hexagon
+                [a, 0, c], [a/2, a*Math.sin(Math.PI/3), c], [-a/2, a*Math.sin(Math.PI/3), c],
+                [-a, 0, c], [-a/2, -a*Math.sin(Math.PI/3), c], [a/2, -a*Math.sin(Math.PI/3), c],
+                // Center atoms
+                [0, 0, 0], [0, 0, c]
+            ];
+            
+            // Add atoms
+            positions.forEach(position => {
+                const atomGeometry = new THREE.SphereGeometry(atomRadius, 32, 32);
+                const atomMaterial = new THREE.MeshPhongMaterial({ 
+                    color: atomColor,
+                    specular: 0x111111,
+                    shininess: 30
+                });
+                const atom = new THREE.Mesh(atomGeometry, atomMaterial);
+                
+                atom.position.set(position[0], position[1], position[2]);
+                group.add(atom);
+            });
+            
+            // Create bonds between atoms (simplified)
+            const bondMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x888888,
+                specular: 0x222222,
+                shininess: 20
+            });
+            
+            // Function to create a bond between two atoms
+            function createBond(startIdx, endIdx) {
+                const start = new THREE.Vector3(positions[startIdx][0], positions[startIdx][1], positions[startIdx][2]);
+                const end = new THREE.Vector3(positions[endIdx][0], positions[endIdx][1], positions[endIdx][2]);
+                
+                const direction = new THREE.Vector3().subVectors(end, start);
+                const length = direction.length();
+                
+                const bondGeometry = new THREE.CylinderGeometry(bondRadius, bondRadius, length, 8);
+                const bond = new THREE.Mesh(bondGeometry, bondMaterial);
+                
+                // Position and orient the bond
+                const midpoint = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
+                bond.position.copy(midpoint);
+                
+                // Orient the cylinder to point from start to end
+                bond.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.clone().normalize());
+                
+                group.add(bond);
+            }
+            
+            // Create bonds for the hexagonal structure (simplified)
+            // Bottom hexagon
+            for (let i = 0; i < 5; i++) {
+                createBond(i, i + 1);
+            }
+            createBond(5, 0);
+            
+            // Top hexagon
+            for (let i = 6; i < 11; i++) {
+                createBond(i, i + 1);
+            }
+            createBond(11, 6);
+            
+            // Vertical connections
+            for (let i = 0; i < 6; i++) {
+                createBond(i, i + 6);
+            }
+            
+            // Center connections
+            for (let i = 0; i < 6; i++) {
+                createBond(12, i);
+            }
+            for (let i = 6; i < 12; i++) {
+                createBond(13, i);
+            }
+            createBond(12, 13);
+            
+            return group;
+        }
+
+        // Create hexagonal close-packed (HCP) structure
+        function createHCPStructure(element) {
+            const group = new THREE.Group();
+            const atomColor = getElementThreeColor(element);
+            const atomRadius = 0.25;
+            const bondRadius = 0.04;
+            
+            // HCP structure parameters
+            const a = 1; // Basal plane spacing
+            const c = 1.633 * a; // Height (for ideal c/a ratio)
+            
+            // Layer A positions (bottom layer)
+            const layerA = [
+                [0, 0, 0],
+                [a, 0, 0],
+                [a/2, a*Math.sqrt(3)/2, 0],
+                [3*a/2, a*Math.sqrt(3)/2, 0],
+                [0, a*Math.sqrt(3), 0],
+                [a, a*Math.sqrt(3), 0]
+            ];
+            
+            // Layer B positions (middle layer)
+            const layerB = [
+                [a/2, a*Math.sqrt(3)/6, c/2],
+                [3*a/2, a*Math.sqrt(3)/6, c/2],
+                [0, 2*a*Math.sqrt(3)/3, c/2],
+                [a, 2*a*Math.sqrt(3)/3, c/2],
+                [a/2, a*Math.sqrt(3)*7/6, c/2],
+                [3*a/2, a*Math.sqrt(3)*7/6, c/2]
+            ];
+            
+            // Layer A' positions (top layer)
+            const layerAPrime = layerA.map(pos => [pos[0], pos[1], c]);
+            
+            // Combine all positions
+            const positions = [...layerA, ...layerB, ...layerAPrime];
+            
+            // Add atoms
+            positions.forEach(position => {
+                const atomGeometry = new THREE.SphereGeometry(atomRadius, 32, 32);
+                const atomMaterial = new THREE.MeshPhongMaterial({ 
+                    color: atomColor,
+                    specular: 0x111111,
+                    shininess: 30
+                });
+                const atom = new THREE.Mesh(atomGeometry, atomMaterial);
+                
+                atom.position.set(position[0] - a, position[1] - a*Math.sqrt(3)/2, position[2] - c/2);
+                group.add(atom);
+            });
+            
+            // Create bonds between atoms (simplified for clarity)
+            const bondMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x888888,
+                specular: 0x222222,
+                shininess: 20
+            });
+            
+            // Function to create a bond between two positions
+            function createBond(pos1, pos2) {
+                const start = new THREE.Vector3(pos1[0] - a, pos1[1] - a*Math.sqrt(3)/2, pos1[2] - c/2);
+                const end = new THREE.Vector3(pos2[0] - a, pos2[1] - a*Math.sqrt(3)/2, pos2[2] - c/2);
+                
+                const direction = new THREE.Vector3().subVectors(end, start);
+                const length = direction.length();
+                
+                // Only create bonds if atoms are close enough
+                if (length < a * 1.1) {
+                    const bondGeometry = new THREE.CylinderGeometry(bondRadius, bondRadius, length, 8);
+                    const bond = new THREE.Mesh(bondGeometry, bondMaterial);
+                    
+                    // Position and orient the bond
+                    const midpoint = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
+                    bond.position.copy(midpoint);
+                    
+                    // Orient the cylinder to point from start to end
+                    bond.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.clone().normalize());
+                    
+                    group.add(bond);
+                }
+            }
+            
+            // Create bonds between nearby atoms
+            for (let i = 0; i < positions.length; i++) {
+                for (let j = i + 1; j < positions.length; j++) {
+                    createBond(positions[i], positions[j]);
+                }
+            }
+            
+            return group;
+        }
+
+        // Get Three.js color for element
+        function getElementThreeColor(element) {
+            const categoryColors = {
+                'alkali-metal': 0xff5757,
+                'alkaline-earth': 0xff914d,
+                'transition-metal': 0xffde59,
+                'post-transition': 0x75c7fb,
+                'metalloid': 0x7ed957,
+                'nonmetal': 0xa685fa,
+                'noble-gas': 0xff71ce,
+                'lanthanide': 0xffaa91,
+                'actinide': 0x91deff,
+                'unknown': 0xc8c8c8
+            };
+            
+            return categoryColors[element.category] || 0xcccccc;
+        }
+
+        // Tab switching functionality
+        function setupTabSwitching() {
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs and contents
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // Add active class to clicked tab and corresponding content
+                    this.classList.add('active');
+                    const tabId = this.dataset.tab;
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+        }
+
+        // Search functionality
+        function setupSearch() {
+            const searchInput = document.getElementById('search-input');
+            const searchBtn = document.getElementById('search-btn');
+            
+            function performSearch() {
+                const searchTerm = searchInput.value.toLowerCase();
+                
+                if (searchTerm.trim() === '') return;
+                
+                // Find matching element
+                const matchedElement = elements.find(element => 
+                    element.name.toLowerCase().includes(searchTerm) ||
+                    element.symbol.toLowerCase() === searchTerm ||
+                    element.number.toString() === searchTerm
+                );
+                
+                if (matchedElement) {
+                    showElementDetails(matchedElement);
+                } else {
+                    alert(`No element found matching "${searchTerm}"`);
+                }
+            }
+            
+            searchBtn.addEventListener('click', performSearch);
+            searchInput.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    performSearch();
+                }
+            });
+        }
+
+        // Modal close functionality
+        function setupModalClose() {
+            const modal = document.getElementById('element-modal');
+            const closeModal = document.querySelector('.close-modal');
+            
+            closeModal.addEventListener('click', function() {
+                modal.classList.remove('show');
+            });
+            
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    modal.classList.remove('show');
+                }
+            });
+        }
+
+        // Interactive controls functionality
+        function setupInteractiveControls() {
+            const showNames = document.getElementById('show-names');
+            const showAtomicMass = document.getElementById('show-atomic-mass');
+            const animateElectrons = document.getElementById('animate-electrons');
+            
+            showNames.addEventListener('change', function() {
+                document.querySelectorAll('.element-name').forEach(el => {
+                    el.style.display = this.checked ? 'block' : 'none';
+                });
+            });
+            
+            showAtomicMass.addEventListener('change', function() {
+                document.querySelectorAll('.element-mass').forEach(el => {
+                    el.style.display = this.checked ? 'block' : 'none';
+                });
+            });
+            
+            animateElectrons.addEventListener('change', function() {
+                const electrons = document.querySelectorAll('.electron');
+                electrons.forEach(electron => {
+                    if (this.checked) {
+                        electron.style.animationPlayState = 'running';
+                    } else {
+                        electron.style.animationPlayState = 'paused';
+                    }
+                });
+            });
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show loading screen
+            document.querySelector('.loading').classList.add('show');
+            
+            // Generate periodic table
+            setTimeout(() => {
+                // Generate table with a small delay to show loading animation
+                generateFullPeriodicTable();
+                
+                // Setup interactive features
+                setupTabSwitching();
+                setupSearch();
+                setupModalClose();
+                setupInteractiveControls();
+                
+                // Hide loading screen
+                document.querySelector('.loading').classList.remove('show');
+            }, 1500);
+        });
+
+        // Element comparison functionality (placeholder)
+        document.getElementById('btn-element-compare').addEventListener('click', function() {
+            alert('Element comparison feature coming soon!');
+        });
+
+        // Quiz functionality (placeholder)
+        document.getElementById('btn-element-quiz').addEventListener('click', function() {
+            alert('Element quiz feature coming soon!');
+        });
+
+        // Save element functionality (placeholder)
+        document.getElementById('btn-element-save').addEventListener('click', function() {
+            alert('Element saved to your favorites!');
+            this.innerHTML = '<i class="fas fa-bookmark"></i> Saved';
+            this.style.backgroundColor = 'var(--accent-color)';
+        });
+    </script>
+</body>
+</html>
