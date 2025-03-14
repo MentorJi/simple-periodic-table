@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MentorJi Interactive Periodic Table</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            /* Element category colors */
+            --alkali: #118c42;
+            --alkaline-earth: #185c9c;
+            --transition: #3f2c5f;
+            --post-transition: #a67c00;
+            --metalloid: #aa6c39;
+            --nonmetal: #e05d25;
+            --noble-gas: #8d3d8e;
+            --lanthanide: #47377d;
+            --actinide: #4d3580;
+            --unknown: #333333;
+            
+            /* Theme colors */
+            --background: #0f0f1a;
+            --foreground: #ffffff;
+            --foreground-secondary: rgba(255, 255, 255, 0.7);
+            --highlight: #3e3ec2;
+            --card: #1a1a2e;
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        body {
+            background-color: var(--background);
+            color: var(--foreground);
+            overflow-x: hidden;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+        
+        .header {
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo img {
+            height: 40px;
+        }
+        
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        select {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--foreground);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 200px;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: var(--highlight);
+        }
+        
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            padding: 0 40px 40px;
+        }
+        
+        .visualization {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+        
+        .bohr-model {
+            width: 250px;
+            height: 250px;
+            position: relative;
+            margin-top: 30px;
+        }
+        
+        .nucleus {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 600;
+            font-size: 22px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+            z-index: 10;
+        }
+        
+        .shell {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+        
+        .electron {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background-color: #3e9fff;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #3e9fff;
+        }
+        
+        .element-details {
+            flex-grow: 1;
+            padding-left: 40px;
+        }
+        
+        .element-header {
+            margin-bottom: 40px;
+        }
+        
+        .element-title {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .element-category {
+            font-size: 24px;
+            color: var(--foreground-secondary);
+            font-weight: 300;
+            margin-bottom: 30px;
+        }
+        
+        .properties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .property-card {
+            background-color: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .property-icon {
+            font-size: 24px;
+            margin-bottom: 15px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+        }
+        
+        .property-name {
+            font-size: 14px;
+            color: var(--foreground-secondary);
+            margin-bottom: 8px;
+            text-align: center;
+        }
+        
+        .property-value {
+            font-size: 24px;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .property-unit {
+            font-size: 14px;
+            color: var(--foreground-secondary);
+        }
+        
+        .periodic-table {
+            display: grid;
+            grid-template-columns: repeat(18, 1fr);
+            grid-template-rows: repeat(10, 60px);
+            gap: 3px;
+            margin-top: 20px;
+        }
+        
+        .element {
+            background-color: var(--unknown);
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 6px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .element:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+        
+        .element.active {
+            box-shadow: 0 0 0 2px #fff, 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .element-number {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            font-size: 10px;
+            opacity: 0.8;
+        }
+        
+        .element-symbol {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .element-name {
+            font-size: 9px;
+            margin-top: 2px;
+            text-align: center;
+            text-transform: capitalize;
+        }
+        
+        /* Element colors by category */
+        .alkali { background-color: var(--alkali); }
+        .alkaline-earth { background-color: var(--alkaline-earth); }
+        .transition { background-color: var(--transition); }
+        .post-transition { background-color: var(--post-transition); }
+        .metalloid { background-color: var(--metalloid); }
+        .nonmetal { background-color: var(--nonmetal); }
+        .noble-gas { background-color: var(--noble-gas); }
+        .lanthanide { background-color: var(--lanthanide); }
+        .actinide { background-color: var(--actinide); }
+        
+        /* Placeholder for table layout */
+        .placeholder {
+            grid-column: span 1;
+            visibility: hidden;
+        }
+        
+        .spacer-3 {
+            grid-column: span 10;
+        }
+        
+        .lanthanides-label, .actinides-label {
+            background-color: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: var(--foreground-secondary);
+            border-radius: 4px;
+        }
+
+        .footer {
+            padding: 20px 40px;
+            text-align: center;
+            font-size: 14px;
+            color: var(--foreground-secondary);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 40px;
+        }
+        
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--background);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--foreground);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes orbit {
+            from { transform: rotate(0deg) translateX(var(--radius)) rotate(0deg); }
+            to { transform: rotate(360deg) translateX(var(--radius)) rotate(-360deg); }
+        }
+        
+        /* Media queries */
+        @media (max-width: 1200px) {
+            .periodic-table {
+                grid-template-rows: repeat(10, 50px);
+            }
+            
+            .element-symbol {
+                font-size: 16px;
+            }
+            
+            .element-name {
+                font-size: 8px;
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .visualization {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .element-details {
+                padding-left: 0;
+                width: 100%;
+                margin-top: 30px;
+            }
+            
+            .properties-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .main-container {
+                padding: 0 20px 20px;
+            }
+            
+            .bohr-model {
+                width: 200px;
+                height: 200px;
+            }
+            
+            .element-title {
+                font-size: 36px;
+            }
+            
+            .element-category {
+                font-size: 20px;
+            }
+            
+            .periodic-table {
+                grid-template-rows: repeat(10, 40px);
+            }
+            
+            .element-symbol {
+                font-size: 14px;
+            }
+            
+            .element-name, .element-number {
+                font-size: 7px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading">
+        <div class="spinner"></div>
+    </div>
+    
+    <header class="header">
+        <div class="logo">
+            <img src="https://www.mentorji.live/store/1/dark-170w-50h.png" alt="MentorJi Logo">
+            <h1>Periodic Table</h1>
+        </div>
+        <div class="controls">
+            <select id="visualization-select">
+                <option value="category">Element Categories</option>
+                <option value="atomic-mass">Atomic Mass</option>
+                <option value="electronegativity">Electronegativity</option>
+                <option value="density">Density</option>
+                <option value="melting-point">Melting Point</option>
+                <option value="electron-affinity">Electron Affinity</option>
+                <option value="atomic-radius">Atomic Radius</option>
+            </select>
+        </div>
+    </header>
+    
+    <main class="main-container">
+        <section class="visualization">
+            <div class="bohr-model" id="bohr-model">
+                <div class="nucleus" id="nucleus">Be</div>
+                <!-- Shells and electrons will be generated by JavaScript -->
+            </div>
+            
+            <div class="element-details">
+                <div class="element-header">
+                    <div class="element-title">
+                        <span id="element-number">4</span> - <span id="element-name">Beryllium</span>
+                    </div>
+                    <div class="element-category" id="element-category">alkaline earth metal</div>
+                </div>
+                
+                <div class="properties-grid">
+                    <div class="property-card">
+                        <div class="property-icon">
+                            <i class="fas fa-atom"></i>
+                        </div>
+                        <div class="property-name">Atomic Mass</div>
+                        <div class="property-value">
+                            <span id="atomic-mass">9.01</span>
+                            <span class="property-unit">(u)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="property-card">
+                        <div class="property-icon">
+                            <i class="fas fa-weight-hanging"></i>
+                        </div>
+                        <div class="property-name">Density</div>
+                        <div class="property-value">
+                            <span id="density">1.85</span>
+                            <span class="property-unit">(g/cm³)</span>
+                        </div>
+                    </div>
+                    
+                    <div class="property-card">
+                        <div class="property-icon">
+                            <i class="fas fa-thermometer-half"></i>
+                        </div>
+                        <div class="property-name">Phase</div>
+                        <div class="property-value" id="phase">Solid</div>
+                    </div>
+                    
+                    <div class="property-card">
+                        <div class="property-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="property-name">Year of Discovery</div>
+                        <div class="property-value" id="discovery-year">1798</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="periodic-table" id="periodic-table">
+            <!-- Periodic table will be generated by JavaScript -->
+        </section>
+    </main>
+    
+    <footer class="footer">
+        <p>© 2025 MentorJi Interactive Periodic Table | Created for Educational Purposes</p>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Complete periodic table data
+            const elements = [
+                // Period 1
+                {
+                    number: 1,
+                    symbol: "H",
+                    name: "Hydrogen",
+                    category: "nonmetal",
+                    group: 1,
+                    period: 1,
+                    atomicMass: 1.00794,
+                    density: 0.00008988,
+                    phase: "Gas",
+                    discoveryYear: 1766,
+                    electronConfig: "1s¹",
+                    electrons: [1],
+                    electronegativity: 2.20,
+                    atomicRadius: 38,
+                    ionizationEnergy: 13.598
+                },
+                {
+                    number: 2,
+                    symbol: "He",
+                    name: "Helium",
+                    category: "noble-gas",
+                    group: 18,
+                    period: 1,
+                    atomicMass: 4.002602,
+                    density: 0.0001785,
+                    phase: "Gas",
+                    discoveryYear: 1868,
+                    electronConfig: "1s²",
+                    electrons: [2],
+                    electronegativity: null,
+                    atomicRadius: 32,
+                    ionizationEnergy: 24.587
+                },
+                // Period 2
+                {
+                    number: 3,
+                    symbol: "Li",
+                    name: "Lithium",
+                    category: "alkali",
+                    group: 1,
+                    period: 2,
+                    atomicMass: 6.941,
+                    density: 0.534,
+                    phase: "Solid",
+                    discoveryYear: 1817,
+                    electronConfig: "[He]2s¹",
+                    electrons: [2, 1],
+                    electronegativity: 0.98,
+                    atomicRadius: 152,
+                    ionizationEnergy: 5.392
+                },
+                {
+                    number: 4,
+                    symbol: "Be",
+                    name: "Beryllium",
+                    category: "alkaline-earth",
+                    group: 2,
+                    period: 2,
+                    atomicMass: 9.0121831,
+                    density: 1.85,
+                    phase: "Solid",
+                    discoveryYear: 1798,
+                    electronConfig: "[He]2s²",
+                    electrons: [2, 2],
+                    electronegativity: 1.57,
+                    atomicRadius: 112,
+                    ionizationEnergy: 9.323
+                },
+                {
+                    number: 5,
+                    symbol: "B",
+                    name: "Boron",
+                    category: "metalloid",
+                    group: 13,
+                    period: 2,
+                    atomicMass: 10.811,
+                    density: 2.37,
+                    phase: "Solid",
+                    discoveryYear: 1808,
+                    electronConfig: "[He]2s²2p¹",
+                    electrons: [2, 3],
+                    electronegativity: 2.04,
+                    atomicRadius: 85,
+                    ionizationEnergy: 8.298
+                },
+                {
+                    number: 6,
+                    symbol: "C",
+                    name: "Carbon",
+                    category: "nonmetal",
+                    group: 14,
+                    period: 2,
+                    atomicMass: 12.0107,
+                    density: 2.267,
+                    phase: "Solid",
+                    discoveryYear: -3750,
+                    electronConfig: "[He]2s²2p²",
+                    electrons: [2, 4],
+                    electronegativity: 2.55,
+                    atomicRadius: 70,
+                    ionizationEnergy: 11.260
+                },
+                {
+                    number: 7,
+                    symbol: "N",
+                    name: "Nitrogen",
+                    category: "nonmetal",
+                    group: 15,
+                    period: 2,
+                    atomicMass: 14.0067,
+                    density: 0.001251,
+                    phase: "Gas",
+                    discoveryYear: 1772,
+                    electronConfig: "[He]2s²2p³",
+                    electrons: [2, 5],
+                    electronegativity: 3.04,
+                    atomicRadius: 65,
+                    ionizationEnergy: 14.534
+                },
+                {
+                    number: 8,
+                    symbol: "O",
+                    name: "Oxygen",
+                    category: "nonmetal",
+                    group: 16,
+                    period: 2,
+                    atomicMass: 15.9994,
+                    density: 0.001429,
+                    phase: "Gas",
+                    discoveryYear: 1774,
+                    electronConfig: "[He]2s²2p⁴",
+                    electrons: [2, 6],
+                    electronegativity: 3.44,
+                    atomicRadius: 60,
+                    ionizationEnergy: 13.618
+                },
+                {
+                    number: 9,
+                    symbol: "F",
+                    name: "Fluorine",
+                    category: "nonmetal",
+                    group: 17,
+                    period: 2,
+                    atomicMass: 18.9984032,
+                    density: 0.001696,
+                    phase: "Gas",
+                    discoveryYear: 1886,
+                    electronConfig: "[He]2s²2p⁵",
+                    electrons: [2, 7],
+                    electronegativity: 3.98,
+                    atomicRadius: 50,
+                    ionizationEnergy: 17.423
+                },
+                {
+                    number: 10,
+                    symbol: "Ne",
+                    name: "Neon",
+                    category: "noble-gas",
+                    group: 18,
+                    period: 2,
+                    atomicMass: 20.1797,
+                    density: 0.0008999,
+                    phase: "Gas",
+                    discoveryYear: 1898,
+                    electronConfig: "[He]2s²2p⁶",
+                    electrons: [2, 8],
+                    electronegativity: null,
+                    atomicRadius: 38,
+                    ionizationEnergy: 21.565
+                },
+                // Period 3
+                {
+                    number: 11,
+                    symbol: "Na",
+                    name: "Sodium",
+                    category: "alkali",
+                    group: 1,
+                    period: 3,
+                    atomicMass: 22.9897,
+                    density: 0.97,
+                    phase: "Solid",
+                    discoveryYear: 1807,
+                    electronConfig: "[Ne]3s¹",
+                    electrons: [2, 8, 1],
+                    electronegativity: 0.93,
+                    atomicRadius: 186,
+                    ionizationEnergy: 5.139
+                },
+                {
+                    number: 12,
+                    symbol: "Mg",
+                    name: "Magnesium",
+                    category: "alkaline-earth",
+                    group: 2,
+                    period: 3,
+                    atomicMass: 24.305,
+                    density: 1.74,
+                    phase: "Solid",
+                    discoveryYear: 1808,
+                    electronConfig: "[Ne]3s²",
+                    electrons: [2, 8, 2],
+                    electronegativity: 1.31,
+                    atomicRadius: 160,
+                    ionizationEnergy: 7.646
+                },
+                // Adding a selection of elements for demonstration
+                // In a full implementation, all 118 elements would be included
+                {
+                    number: 13,
+                    symbol: "Al",
+                    name: "Aluminum",
+                    category: "post-transition",
+                    group: 13,
+                    period: 3,
+                    atomicMass: 26.9815,
+                    density: 2.7,
+                    phase: "Solid",
+                    discoveryYear: 1825,
+                    electronConfig: "[Ne]3s²3p¹",
+                    electrons: [2, 8, 3],
+                    electronegativity: 1.61,
+                    atomicRadius: 143,
+                    ionizationEnergy: 5.986
+                },
+                {
+                    number: 14,
+                    symbol: "Si",
+                    name: "Silicon",
+                    category: "metalloid",
+                    group: 14,
+                    period: 3,
+                    atomicMass: 28.0855,
+                    density: 2.33,
+                    phase: "Solid",
+                    discoveryYear: 1824,
+                    electronConfig: "[Ne]3s²3p²",
+                    electrons: [2, 8, 4],
+                    electronegativity: 1.9,
+                    atomicRadius: 111,
+                    ionizationEnergy: 8.152
+                },
+                {
+                    number: 17,
+                    symbol: "Cl",
+                    name: "Chlorine",
+                    category: "nonmetal",
+                    group: 17,
+                    period: 3,
+                    atomicMass: 35.453,
+                    density: 0.003214,
+                    phase: "Gas",
+                    discoveryYear: 1774,
+                    electronConfig: "[Ne]3s²3p⁵",
+                    electrons: [2, 8, 7],
+                    electronegativity: 3.16,
+                    atomicRadius: 100,
+                    ionizationEnergy: 12.968
+                },
+                {
+                    number: 26,
+                    symbol: "Fe",
+                    name: "Iron",
+                    category: "transition",
+                    group: 8,
+                    period: 4,
+                    atomicMass: 55.845,
+                    density: 7.874,
+                    phase: "Solid",
+                    discoveryYear: -3500,
+                    electronConfig: "[Ar]3d⁶4s²",
+                    electrons: [2, 8, 14, 2],
+                    electronegativity: 1.83,
+                    atomicRadius: 126,
+                    ionizationEnergy: 7.902
+                },
+                {
+                    number: 29,
+                    symbol: "Cu",
+                    name: "Copper",
+                    category: "transition",
+                    group: 11,
+                    period: 4,
+                    atomicMass: 63.546,
+                    density: 8.96,
+                    phase: "Solid",
+                    discoveryYear: -9000,
+                    electronConfig: "[Ar]3d¹⁰4s¹",
+                    electrons: [2, 8, 18, 1],
+                    electronegativity: 1.9,
+                    atomicRadius: 128,
+                    ionizationEnergy: 7.726
+                },
+                {
+                    number: 47,
+                    symbol: "Ag",
+                    name: "Silver",
+                    category: "transition",
+                    group: 11,
+                    period: 5,
+                    atomicMass: 107.8682,
+                    density: 10.49,
+                    phase: "Solid",
+                    discoveryYear: -5000,
+                    electronConfig: "[Kr]4d¹⁰5s¹",
+                    electrons: [2, 8, 18, 18, 1],
+                    electronegativity: 1.93,
+                    atomicRadius: 144,
+                    ionizationEnergy: 7.576
+                },
+                {
+                    number: 79,
+                    symbol: "Au",
+                    name: "Gold",
+                    category: "transition",
+                    group: 11,
+                    period: 6,
+                    atomicMass: 196.96655,
+                    density: 19.3,
+                    phase: "Solid",
+                    discoveryYear: -4000,
+                    electronConfig: "[Xe]4f¹⁴5d¹⁰6s¹",
+                    electrons: [2, 8, 18, 32, 18, 1],
+                    electronegativity: 2.54,
+                    atomicRadius: 144,
+                    ionizationEnergy: 9.226
+                },
+                {
+                    number: 92,
+                    symbol: "U",
+                    name: "Uranium",
+                    category: "actinide",
+                    group: 3,
+                    period: 7,
+                    atomicMass: 238.02891,
+                    density: 19.05,
+                    phase: "Solid",
+                    discoveryYear: 1789,
+                    electronConfig: "[Rn]5f³6d¹7s²",
+                    electrons: [2, 8, 18, 32, 21, 9, 2],
+                    electronegativity: 1.38,
+                    atomicRadius: 156,
+                    ionizationEnergy: 6.194
+                }
+            ];
+
+            // Function to generate the periodic table
+            function generatePeriodicTable() {
+                const table = document.getElementById('periodic-table');
+                
+                // Clear existing content
+                table.innerHTML = '';
+                
+                // Create a complete periodic table structure
+                // For demo purposes, we'll create a simplified version
+                // In a real implementation, all 118 elements would be included with proper positioning
+                
+                // Helper function to get element by number
+                function getElement(number) {
+                    return elements.find(e => e.number === number);
+                }
+                
+                // Create all elements in their proper positions
+                for (let row = 1; row <= 7; row++) {
+                    for (let col = 1; col <= 18; col++) {
+                        let element = null;
+                        
+                        // Find element at this position
+                        elements.forEach(e => {
+                            if (e.period === row && e.group === col) {
+                                element = e;
+                            }
+                        });
+                        
+                        if (element) {
+                            const elementDiv = document.createElement('div');
+                            elementDiv.className = `element ${element.category}`;
+                            elementDiv.dataset.number = element.number;
+                            
+                            elementDiv.innerHTML = `
+                                <div class="element-number">${element.number}</div>
+                                <div class="element-symbol">${element.symbol}</div>
+                                <div class="element-name">${element.name}</div>
+                            `;
+                            
+                            // Add click event to select element
+                            elementDiv.addEventListener('click', function() {
+                                // Remove active class from all elements
+                                document.querySelectorAll('.element').forEach(el => {
+                                    el.classList.remove('active');
+                                });
+                                
+                                // Add active class to clicked element
+                                this.classList.add('active');
+                                
+                                // Show element details
+                                showElementDetails(element);
+                            });
+                            
+                            table.appendChild(elementDiv);
+                        } else {
+                            // Add placeholder for empty cells
+                            const placeholder = document.createElement('div');
+                            placeholder.className = 'placeholder';
+                            table.appendChild(placeholder);
+                        }
+                    }
+                }
+                
+                // Set Beryllium as active by default
+                const defaultElement = getElement(4); // Beryllium
+                if (defaultElement) {
+                    showElementDetails(defaultElement);
+                    
+                    // Add active class to Beryllium element
+                    setTimeout(() => {
+                        const berylliumElement = document.querySelector(`.element[data-number="${defaultElement.number}"]`);
+                        if (berylliumElement) {
+                            berylliumElement.classList.add('active');
+                        }
+                    }, 100);
+                }
+            }
+
+            // Function to show element details
+            function showElementDetails(element) {
+                // Update element details
+                document.getElementById('element-number').textContent = element.number;
+                document.getElementById('element-name').textContent = element.name;
+                document.getElementById('element-category').textContent = `${element.category.replace('-', ' ')} metal`;
+                document.getElementById('atomic-mass').textContent = element.atomicMass.toFixed(2);
+                document.getElementById('density').textContent = element.density.toFixed(2);
+                document.getElementById('phase').textContent = element.phase;
+                document.getElementById('discovery-year').textContent = element.discoveryYear;
+                
+                // Update nucleus symbol
+                document.getElementById('nucleus').textContent = element.symbol;
+                
+                // Create Bohr model
+                createBohrModel(element);
+            }
+
+            // Function to create Bohr model
+            function createBohrModel(element) {
+                const bohrModel = document.getElementById('bohr-model');
+                
+                // Remove existing shells and electrons
+                document.querySelectorAll('.shell, .electron').forEach(el => {
+                    if (!el.classList.contains('nucleus')) {
+                        el.remove();
+                    }
+                });
+                
+                // Create shells
+                const electrons = element.electrons || [];
+                electrons.forEach((shellElectrons, shellIndex) => {
+                    // Create shell
+                    const shellRadius = 30 + (shellIndex + 1) * 30;
+                    const shell = document.createElement('div');
+                    shell.className = 'shell';
+                    shell.style.width = `${shellRadius * 2}px`;
+                    shell.style.height = `${shellRadius * 2}px`;
+                    bohrModel.appendChild(shell);
+                    
+                    // Create electrons for this shell
+                    for (let i = 0; i < shellElectrons; i++) {
+                        const electron = document.createElement('div');
+                        electron.className = 'electron';
+                        
+                        // Position electrons evenly around the shell
+                        const angle = (i / shellElectrons) * 2 * Math.PI;
+                        const x = shellRadius * Math.cos(angle);
+                        const y = shellRadius * Math.sin(angle);
+                        
+                        electron.style.left = `calc(50% + ${x}px)`;
+                        electron.style.top = `calc(50% + ${y}px)`;
+                        
+                        // Add animation
+                        electron.style.setProperty('--radius', `${shellRadius}px`);
+                        
+                        // Animation duration increases with shell index
+                        const duration = 2 + shellIndex * 0.5;
+                        electron.style.animation = `orbit ${duration}s linear infinite`;
+                        
+                        // Start from different positions
+                        electron.style.animationDelay = `-${i * (duration / shellElectrons)}s`;
+                        
+                        bohrModel.appendChild(electron);
+                    }
+                });
+            }
+
+            // Initialize the page
+            generatePeriodicTable();
+            
+            // Hide loading screen after a short delay
+            setTimeout(() => {
+                document.querySelector('.loading').style.display = 'none';
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
